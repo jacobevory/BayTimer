@@ -12,6 +12,7 @@ credentials = pika.PlainCredentials('bay', 'timer')
 parameters = pika.ConnectionParameters(host=serverIP, credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 
+channel = connection.channel()
 
 roll1 = -1
 roll2 = -2
@@ -61,6 +62,7 @@ def sendData():
 	global ready
 	
 	if ready:
+	'''
 		if round == 1:
 			roll1 = distance
 			round = 2
@@ -75,13 +77,14 @@ def sendData():
 			roll1 = -1
 			roll2 = -2
 			roll3 = -3
-			channel = connection.channel()
-			channel.queue_declare(queue='timer_data')
-			channel.basic_publish(exchange='',
-						  routing_key='timer_data',
-						  body='Hello World!')
-			print(" [x] Sent Data")
-			connection.close()
+	'''
+		
+		channel.queue_declare(queue='timer_data')
+		channel.basic_publish(exchange='',
+					  routing_key='timer_data',
+					  body='Hello World!')
+		print(" [x] Sent Data")
+		
 		
 	
 
@@ -95,4 +98,4 @@ if __name__ == '__main__':
 	except KeyboardInterrupt:   # Ctrl+C
 		if ser != None:
 			ser.close()
-			import serial
+			connection.close()
