@@ -13,10 +13,6 @@ parameters = pika.ConnectionParameters(host=serverIP, credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 
 
-
-channel = connection.channel()
-channel.queue_declare(queue='timer_data')
-
 roll1 = 0
 roll2 = 0
 roll3 = 0
@@ -76,13 +72,13 @@ def sendData():
 			round = 1
 		
 		if roll1 == roll2 == roll3:
+			channel = connection.channel()
+			channel.queue_declare(queue='timer_data')
 			channel.basic_publish(exchange='',
 						  routing_key='timer_data',
 						  body='Hello World!')
-		ready = False
-		
-print(" [x] Sent Data")
-connection.close()
+			print(" [x] Sent Data")
+			connection.close()
 		
 	
 
