@@ -63,6 +63,8 @@ def sendData():
 	global ready
 	
 	if ready:
+		ready = False
+
 		if round == 1:
 			roll1 = distance
 			round = 2
@@ -81,7 +83,7 @@ def sendData():
 
 		channel.basic_publish(exchange='',
 					  routing_key='timer_data',
-					  body='Hello World!')
+					  body=str(distance))
 		print(" [x] Sent Data")
 		
 		
