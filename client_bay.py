@@ -6,8 +6,14 @@ import pika
 serverIP = '192.168.9.20'
 ser = serial.Serial('/dev/serial0', 115200)
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host=serverIP))
+
+
+credentials = pika.PlainCredentials('bay', 'timer')
+parameters = pika.ConnectionParameters(host=serverIP, credentials=credentials)
+connection = pika.BlockingConnection(parameters)
+
 channel.queue_declare(queue='timer_data')
+
 channel = connection.channel()
 
 roll1 = 0
