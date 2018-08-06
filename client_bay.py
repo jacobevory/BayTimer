@@ -12,9 +12,10 @@ credentials = pika.PlainCredentials('bay', 'timer')
 parameters = pika.ConnectionParameters(host=serverIP, credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 
-channel.queue_declare(queue='timer_data')
+
 
 channel = connection.channel()
+channel.queue_declare(queue='timer_data')
 
 roll1 = 0
 roll2 = 0
