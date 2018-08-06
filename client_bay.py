@@ -87,10 +87,11 @@ connection.close()
 
 if __name__ == '__main__':
 	try:
-		if ser.is_open == False:
-			ser.open()
-		getTFminiData()
-		sendData()
+		while True:
+			if ser.is_open == False:
+				ser.open()
+			getTFminiData()
+			sendData()
 	except KeyboardInterrupt:   # Ctrl+C
 		if ser != None:
 			ser.close()
