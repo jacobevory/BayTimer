@@ -13,9 +13,9 @@ parameters = pika.ConnectionParameters(host=serverIP, credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 
 
-roll1 = 0
-roll2 = 0
-roll3 = 0
+roll1 = -1
+roll2 = -1
+roll3 = -1
 round = 1
 ready = False
 distance = 0
@@ -72,6 +72,9 @@ def sendData():
 			round = 1
 		
 		if roll1 == roll2 == roll3:
+			roll1 = -1
+			roll2 = -1
+			roll3 = -1
 			channel = connection.channel()
 			channel.queue_declare(queue='timer_data')
 			channel.basic_publish(exchange='',
