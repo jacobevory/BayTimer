@@ -14,8 +14,8 @@ connection = pika.BlockingConnection(parameters)
 
 
 roll1 = -1
-roll2 = -1
-roll3 = -1
+roll2 = -2
+roll3 = -3
 round = 1
 ready = False
 distance = 0
@@ -73,8 +73,8 @@ def sendData():
 		
 		if roll1 == roll2 == roll3:
 			roll1 = -1
-			roll2 = -1
-			roll3 = -1
+			roll2 = -2
+			roll3 = -3
 			channel = connection.channel()
 			channel.queue_declare(queue='timer_data')
 			channel.basic_publish(exchange='',
