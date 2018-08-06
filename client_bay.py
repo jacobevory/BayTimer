@@ -67,10 +67,10 @@ def sendData():
 		if round == 1:
 			roll1 = distance
 			round = 2
-		else if round == 2:
+		elif round == 2:
 			roll2 = distance
 			round = 3
-		else if round == 3:
+		elif round == 3:
 			roll3 = distance
 			round = 1
 		
