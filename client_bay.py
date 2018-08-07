@@ -3,6 +3,8 @@ import serial
 import time
 import pika
 
+bayNum = 5
+
 serverIP = '192.168.9.20'
 ser = serial.Serial('/dev/serial0', 115200)
 
@@ -21,6 +23,9 @@ roll3 = -3
 round = 1
 ready = False
 distance = 0
+isCar = False
+isCar_UpperLimit = 10000
+isCar_LowerLimit = 100
 
 def getTFminiData():
 	global distance
@@ -61,6 +66,9 @@ def sendData():
 	global roll2
 	global roll3
 	global ready
+	global isCar
+	global bayNum
+	
 	
 	if ready:
 		ready = False
@@ -79,12 +87,16 @@ def sendData():
 			roll1 = -1
 			roll2 = -2
 			roll3 = -3
+			if (distance < isCar_UpperLimit) && (distance > isCar_LowerLimit):
+				isCar = True
+			else isCar = False
+			
+		sendBody = "[Bay:" + str(bayNum) + ",isCar:" + str(isCar) + "]"
 		
-
 		channel.basic_publish(exchange='',
 					  routing_key='timer_data',
-					  body=str(distance))
-		print(" [x] Sent Data")
+					  body=sendBody)
+		print(sendBody)
 		
 		
 	
