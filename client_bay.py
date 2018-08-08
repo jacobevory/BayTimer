@@ -5,7 +5,7 @@ import pika
 
 bayNum = 5
 
-serverIP = '192.168.9.20'
+serverIP = '192.168.3.20'
 ser = serial.Serial('/dev/serial0', 115200)
 
 
@@ -87,9 +87,10 @@ def sendData():
 			roll1 = -1
 			roll2 = -2
 			roll3 = -3
-			if (distance < isCar_UpperLimit) && (distance > isCar_LowerLimit):
+			if (distance < isCar_UpperLimit) and (distance > isCar_LowerLimit):
 				isCar = True
-			else isCar = False
+			else:
+				 isCar = False
 			
 		sendBody = "[Bay:" + str(bayNum) + ",isCar:" + str(isCar) + "]"
 		
