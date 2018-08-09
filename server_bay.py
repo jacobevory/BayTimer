@@ -19,7 +19,7 @@ credentials = pika.PlainCredentials('bay', 'timer')
 parameters = pika.ConnectionParameters(host='localhost', credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
-channel.queue_declare(queue='timer_data')
+channel.queue_declare(queue='timer_data', arguments={'x-message-ttl' : 1000})
 
 class receiveThread(QtCore.QThread):
 	

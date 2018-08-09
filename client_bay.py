@@ -13,7 +13,7 @@ parameters = pika.ConnectionParameters(host=serverIP, credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 
 channel = connection.channel()
-channel.queue_declare(queue=queueName)
+channel.queue_declare(queue=queueName, arguments={'x-message-ttl' : 1000})
 
 roll1 = -1
 roll2 = -2
@@ -89,7 +89,7 @@ def sendData():
 			else:
 				 isCar = False
 			
-		sendBody = "[\"Bay\":\"" + str(bayNum) + "\",\"isCar\":\"" + str(isCar) + "\"]"
+		sendBody = "{\"Bay\":\"" + str(bayNum) + "\", \"isCar\":\"" + str(isCar) + "\"}"
 		
 		channel.basic_publish(exchange='',
 					  routing_key=queueName,
