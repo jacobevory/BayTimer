@@ -7,6 +7,13 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, Qt
 import time
 import json
 
+timer = [0 for x in range(5)]
+s = [0 for x in range(5)]
+m = [0 for x in range(5)]
+h = [0 for x in range(5)]
+
+isCarLast = [False for x in range(5)]
+isCarCurrent = [False for x in range(5)]
 
 credentials = pika.PlainCredentials('bay', 'timer')
 parameters = pika.ConnectionParameters(host='localhost', credentials=credentials)
@@ -28,7 +35,7 @@ class receiveThread(QtCore.QThread):
 		data_in = body.decode("ascii")
 		print(" [x] Received %r" % data_in)
 		j = json.loads(data_in)
-		send(j['Bay'], j['isCar'])
+		isCar[j['Bay']] = j['isCar']
 
 		
 	def run(self):
@@ -53,17 +60,18 @@ class MainWindow(QWidget):
 	def initUI(self):
 		global width
 		global height
+		global timer
+		global s, m, h
 	
 		bay1 = QLabel('Bay 1')
 		bay2 = QLabel('Bay 2')
 		bay3 = QLabel('Bay 3')
 		bay4 = QLabel('Bay 4')
-		
-		lcd1 = QLCDNumber(self)
-		lcd2 = QLCDNumber(self)
-		lcd3 = QLCDNumber(self)
-		lcd4 = QLCDNumber(self)
-		
+		self.lcd = [0 for x in range(5)]
+		self.lcd[1] = QLCDNumber(self)
+		self.lcd[2] = QLCDNumber(self)
+		self.lcd[3] = QLCDNumber(self)
+		self.lcd[4] = QLCDNumber(self)		
 		
 		grid = QGridLayout()
 		
@@ -75,25 +83,26 @@ class MainWindow(QWidget):
 		grid.addRow(lcd3, lcd4)
 		
 		'''
+		
 		grid.addWidget(bay1, 1, 0)
 		bay1.setAlignment(Qt.AlignCenter)
 		bay1.setFont(QtGui.QFont('Calabri', 72))
-		grid.addWidget(lcd1, 2, 0)
+		grid.addWidget(self.lcd[1], 2, 0)
 		
 		grid.addWidget(bay3, 3, 0)
 		bay3.setAlignment(Qt.AlignCenter)
 		bay3.setFont(QtGui.QFont('Calabri', 72))
-		grid.addWidget(lcd3, 4, 0)
+		grid.addWidget(self.lcd[3], 4, 0)
 		
 		grid.addWidget(bay2, 1, 1)
 		bay2.setAlignment(Qt.AlignCenter)
 		bay2.setFont(QtGui.QFont('Calabri', 72))
-		grid.addWidget(lcd2, 2, 1)
+		grid.addWidget(self.lcd[2], 2, 1)
 		
 		grid.addWidget(bay4, 3, 1)
 		bay4.setAlignment(Qt.AlignCenter)
 		bay4.setFont(QtGui.QFont('Calabri', 72))
-		grid.addWidget(lcd4, 4, 1)
+		grid.addWidget(self.lcd[4], 4, 1)
 		
 		self.setLayout(grid)
 		self.setGeometry(0, 0, width, height)
@@ -102,24 +111,50 @@ class MainWindow(QWidget):
 		self.setWindowState(QtCore.Qt.WindowMaximized)
 		self.show()
 		
-		'''
-		timer1 = QtCore.QTimer(self)
-		timer2 = QtCore.QTimer(self)
-		timer3 = QtCore.QTimer(self)
-		timer4 = QtCore.QTimer(self)
-		timer1.timeout.connect(self.Time)
-		timer2.timeout.connect(self.Time)
-		timer3.timeout.connect(self.Time)
-		timer4.timeout.connect(self.Time)
-		timeoutV = 10
-		timer1.start(timeoutV)
-		timer2.start(timeoutV)
-		timer3.start(timeoutV)
-		timer4.start(timeoutV)
-		'''
 		
+		timer[1] = QtCore.QTimer(self)
+		timer[2] = QtCore.QTimer(self)
+		timer[3] = QtCore.QTimer(self)
+		timer[4] = QtCore.QTimer(self)
+		timer[1].timeout.connect(lambda: self.Time(1))
+		timer[2].timeout.connect(lambda: self.Time(2))
+		timer[3].timeout.connect(lambda: self.Time(3))
+		timer[4].timeout.connect(lambda: self.Time(4))
+		timeoutV = 1000
+		timer[1].start(timeoutV)
+		#timer[2].start(timeoutV)
+		#timer[3].start(timeoutV)
+		#timer[4].start(timeoutV)
 		#self.lcd1.resize(250,100)
-		
+	
+	
+	def Time(self, timernum):
+		global s, m, h
+		if s[timernum] < 10:
+			s[timernum] += 1
+		else:
+			if m[timernum] < 10:
+				s[timernum] = 0
+				m[timernum] += 1
+			elif m[timernum] == 10 and h[timernum] < 24:
+				h[timernum] += 1
+				m[timernum] = 0
+				s[timernum] = 0
+			else:
+				self.timer[timernum].stop()
+ 
+		time = self.getStr(h[timernum]) + ":" + self.getStr(m[timernum]) + ':' + self.getStr(s[timernum])
+ 
+		self.lcd[timernum].setDigitCount(len(time))
+		self.lcd[timernum].display(time)
+	
+	def getStr(self, number):
+		if number < 10 and number > -1:
+			returnStr = '0' + str(number)
+		else:
+			returnStr = str(number)
+		return returnStr
+	
 	def startReceiveThread(self):
 		print("instantiating")
 		self.receive_thread = receiveThread()
@@ -129,10 +164,18 @@ class MainWindow(QWidget):
 		self.receive_thread.start()
 		
 		
-	def update(self, bay, occupancy):
+	def run(self):
 		
-		print("Update Received")
-		
+		for bayPos in range(1,4):
+			if isCarLast[bayPos] == True and isCarCurrently[bayPos] == False:
+				timer[bayPos].stop()
+			elif isCarLast[bayPos] == False and isCarCurrently[bayPos] == True:
+				timer[bayPos].reset()
+				timer[bayPos].start(1000)
+			elif isCarLast[bayPos] == False and isCarCurrently[bayPos] == False:
+				timer[bayPos].stop()
+			else:
+				return		
 		
 		
 
