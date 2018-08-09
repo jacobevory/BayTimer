@@ -2,20 +2,18 @@
 import serial
 import time
 import pika
+from client_config import serverIP, user, password, bayNum, isCar_UpperLimit, isCar_LowerLimit, queueName
 
-bayNum = 5
-
-serverIP = '192.168.3.20'
 ser = serial.Serial('/dev/serial0', 115200)
 
 
 
-credentials = pika.PlainCredentials('bay', 'timer')
+credentials = pika.PlainCredentials(user, password)
 parameters = pika.ConnectionParameters(host=serverIP, credentials=credentials)
 connection = pika.BlockingConnection(parameters)
 
 channel = connection.channel()
-channel.queue_declare(queue='timer_data')
+channel.queue_declare(queue=queueName)
 
 roll1 = -1
 roll2 = -2
@@ -24,8 +22,7 @@ round = 1
 ready = False
 distance = 0
 isCar = False
-isCar_UpperLimit = 10000
-isCar_LowerLimit = 100
+
 
 def getTFminiData():
 	global distance
@@ -95,7 +92,7 @@ def sendData():
 		sendBody = "[Bay:" + str(bayNum) + ",isCar:" + str(isCar) + "]"
 		
 		channel.basic_publish(exchange='',
-					  routing_key='timer_data',
+					  routing_key=queueName,
 					  body=sendBody)
 		print(sendBody)
 		
