@@ -22,19 +22,34 @@ channel = connection.channel()
 channel.queue_declare(queue='timer_data', arguments={'x-message-ttl' : 1000})
 
 class receiveThread(QtCore.QThread):
+
+	update_signal = pyqtSignal(int, int)
 	
 	def __init__(self, parent=None):
 		super(receiveThread, self).__init__(parent)		
 		
-	def send(bay, occupancy):
-		self.update_signal.emit(bay, occupancy)
+	def send(self, bayPos):
+		stop = 0
+		reset = 1
+		if isCarLast[bayPos] == "True" and isCarCurrent[bayPos] == "False":
+			self.update_signal.emit(bayPos, stop)
+		elif isCarLast[bayPos] == "False" and isCarCurrent[bayPos] == "True":
+			self.update_signal.emit(bayPos, reset)
+		elif isCarLast[bayPos] == "False" and isCarCurrent[bayPos] == "False":
+			self.update_signal.emit(bayPos, stop)
+		else:
+			return	
+		#self.update_signal.emit(bay, command)
 
 	def callback(self, ch, method, properties, body):
+		global isCarLast
+		global isCarCurrent
 		data_in = body.decode()
 		print(" [x] Received %r" % data_in)
 		j = json.loads(data_in)
-		isCar[j['Bay']] = j['isCar']
-
+		isCarLast[int(j['Bay'])] = isCarCurrent[int(j['Bay'])]		
+		isCarCurrent[int(j['Bay'])] = str(j['isCar'])
+		self.send(int(j['Bay']))
 		
 	def run(self):
 	
@@ -53,6 +68,7 @@ class MainWindow(QWidget):
 		super(MainWindow, self).__init__()
 		self.initUI()
 		print("UI Done")
+		#self.update_signal.connect(self.update)
 		self.startReceiveThread()
 
 	def initUI(self):
@@ -128,13 +144,13 @@ class MainWindow(QWidget):
 	
 	def Time(self, timernum):
 		global s, m, h
-		if s[timernum] < 10:
+		if s[timernum] < 59:
 			s[timernum] += 1
 		else:
-			if m[timernum] < 10:
+			if m[timernum] < 59:
 				s[timernum] = 0
 				m[timernum] += 1
-			elif m[timernum] == 10 and h[timernum] < 24:
+			elif m[timernum] == 59 and h[timernum] < 24:
 				h[timernum] += 1
 				m[timernum] = 0
 				s[timernum] = 0
@@ -157,24 +173,21 @@ class MainWindow(QWidget):
 		print("instantiating")
 		self.receive_thread = receiveThread()
 		print("Connecting")
-		#self.receive_thread.update_signal.connect(self.update)
+		self.receive_thread.update_signal.connect(self.update)
 		print("Starting Thread")
 		self.receive_thread.start()
 		
 		
-	def run(self):
-		
-		for bayPos in range(1,4):
-			if isCarLast[bayPos] == True and isCarCurrently[bayPos] == False:
-				timer[bayPos].stop()
-			elif isCarLast[bayPos] == False and isCarCurrently[bayPos] == True:
-				timer[bayPos].reset()
-				timer[bayPos].start(1000)
-			elif isCarLast[bayPos] == False and isCarCurrently[bayPos] == False:
-				timer[bayPos].stop()
-			else:
-				return		
-		
+	def update(self, pos, com):
+		if com == 0:
+			timer[pos].stop()
+		elif com == 1:
+				s[pos] = 0
+				m[pos] = 0
+				h[pos] = 0
+				timer[pos].start(1000)
+		else:
+			return	
 		
 
 if __name__ == "__main__":
