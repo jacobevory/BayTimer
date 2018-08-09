@@ -22,8 +22,6 @@ channel = connection.channel()
 channel.queue_declare(queue='timer_data')
 
 class receiveThread(QtCore.QThread):
-
-	update_signal = pyqtSignal(str, str)
 	
 	def __init__(self, parent=None):
 		super(receiveThread, self).__init__(parent)		
@@ -31,8 +29,8 @@ class receiveThread(QtCore.QThread):
 	def send(bay, occupancy):
 		self.update_signal.emit(bay, occupancy)
 
-	def callback(ch, method, properties, body):
-		data_in = body.decode("ascii")
+	def callback(self, ch, method, properties, body):
+		data_in = body.decode()
 		print(" [x] Received %r" % data_in)
 		j = json.loads(data_in)
 		isCar[j['Bay']] = j['isCar']
@@ -121,7 +119,7 @@ class MainWindow(QWidget):
 		timer[3].timeout.connect(lambda: self.Time(3))
 		timer[4].timeout.connect(lambda: self.Time(4))
 		timeoutV = 1000
-		timer[1].start(timeoutV)
+		#timer[1].start(timeoutV)
 		#timer[2].start(timeoutV)
 		#timer[3].start(timeoutV)
 		#timer[4].start(timeoutV)
@@ -159,7 +157,7 @@ class MainWindow(QWidget):
 		print("instantiating")
 		self.receive_thread = receiveThread()
 		print("Connecting")
-		self.receive_thread.update_signal.connect(self.update)
+		#self.receive_thread.update_signal.connect(self.update)
 		print("Starting Thread")
 		self.receive_thread.start()
 		
