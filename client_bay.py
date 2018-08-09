@@ -89,7 +89,7 @@ def sendData():
 			else:
 				 isCar = False
 			
-		sendBody = "[Bay:" + str(bayNum) + ",isCar:" + str(isCar) + "]"
+		sendBody = "[\"Bay\":\"" + str(bayNum) + "\",\"isCar\":\"" + str(isCar) + "\"]"
 		
 		channel.basic_publish(exchange='',
 					  routing_key=queueName,
