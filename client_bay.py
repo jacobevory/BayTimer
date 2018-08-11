@@ -84,7 +84,7 @@ def sendData():
 			roll1 = -1
 			roll2 = -2
 			roll3 = -3
-			if (distance < isCar_UpperLimit) and (distance > isCar_LowerLimit):
+			if ((distance < isCar_UpperLimit) and (distance > isCar_LowerLimit)) or (distance == 65535):
 				isCar = True
 			else:
 				 isCar = False
