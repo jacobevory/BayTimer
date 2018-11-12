@@ -77,10 +77,10 @@ class MainWindow(QWidget):
 		global timer
 		global s, m, h
 	
-		bay1 = QLabel('Bay 1')
-		bay2 = QLabel('Bay 2')
-		bay3 = QLabel('Bay 3')
-		bay4 = QLabel('Bay 4')
+		#bay1 = QLabel('Bay 1')
+		#bay2 = QLabel('Bay 2')
+		#bay3 = QLabel('Bay 3')
+		#bay4 = QLabel('Bay 4')
 		self.lcd = [0 for x in range(5)]
 		self.lcd[1] = QLCDNumber(self)
 		self.lcd[2] = QLCDNumber(self)
@@ -98,25 +98,25 @@ class MainWindow(QWidget):
 		
 		'''
 		
-		grid.addWidget(bay1, 1, 0)
-		bay1.setAlignment(Qt.AlignCenter)
-		bay1.setFont(QtGui.QFont('Calabri', 72))
-		grid.addWidget(self.lcd[1], 2, 0)
+		#grid.addWidget(bay1, 1, 0)
+		#bay1.setAlignment(Qt.AlignCenter)
+		#bay1.setFont(QtGui.QFont('Calabri', 72))
+		grid.addWidget(self.lcd[1], 0, 0)
 		
-		grid.addWidget(bay3, 3, 0)
-		bay3.setAlignment(Qt.AlignCenter)
-		bay3.setFont(QtGui.QFont('Calabri', 72))
-		grid.addWidget(self.lcd[3], 4, 0)
+		#grid.addWidget(bay3, 3, 0)
+		#bay3.setAlignment(Qt.AlignCenter)
+		#bay3.setFont(QtGui.QFont('Calabri', 72))
+		grid.addWidget(self.lcd[3], 2, 0)
 		
-		grid.addWidget(bay2, 1, 1)
-		bay2.setAlignment(Qt.AlignCenter)
-		bay2.setFont(QtGui.QFont('Calabri', 72))
-		grid.addWidget(self.lcd[2], 2, 1)
+		#grid.addWidget(bay2, 1, 1)
+		#bay2.setAlignment(Qt.AlignCenter)
+		#bay2.setFont(QtGui.QFont('Calabri', 72))
+		grid.addWidget(self.lcd[2], 1, 0)
 		
-		grid.addWidget(bay4, 3, 1)
-		bay4.setAlignment(Qt.AlignCenter)
-		bay4.setFont(QtGui.QFont('Calabri', 72))
-		grid.addWidget(self.lcd[4], 4, 1)
+		#grid.addWidget(bay4, 3, 1)
+		#bay4.setAlignment(Qt.AlignCenter)
+		#bay4.setFont(QtGui.QFont('Calabri', 72))
+		grid.addWidget(self.lcd[4], 3, 0)
 		
 		self.setLayout(grid)
 		self.setGeometry(0, 0, width, height)
@@ -150,7 +150,7 @@ class MainWindow(QWidget):
 			if m[timernum] < 59:
 				s[timernum] = 0
 				m[timernum] += 1
-			elif m[timernum] == 59 and h[timernum] < 24:
+			elif m[timernum] == 59 and h[timernum] < 100:
 				h[timernum] += 1
 				m[timernum] = 0
 				s[timernum] = 0
